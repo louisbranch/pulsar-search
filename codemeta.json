@@ -1,0 +1,49 @@
+{
+  "@context": "https://doi.org/10.5063/schema/codemeta-2.0",
+  "@type": "SoftwareSourceCode",
+  "name": "pulsar-search",
+  "description": "Python package for simulating, filtering, and analysing pulsar signals in time-domain telescope data. Provides targeted template searches for flux estimation, with simulation and filtering tools.",
+  "identifier": "",
+  "codeRepository": "https://github.com/louisbranch/pulsar-search",
+  "license": "https://spdx.org/licenses/BSD-3-Clause.html",
+  "programmingLanguage": "Python",
+  "author": [
+    {
+      "@type": "Person",
+      "givenName": "Louis",
+      "familyName": "Branch",
+      "email": "louis.branch@mail.utoronto.ca",
+      "orcid": "https://orcid.org/0009-0009-2369-327X"
+    },
+    {
+      "@type": "Person",
+      "givenName": "Yilun",
+      "familyName": "Guan",
+      "email": "yilun.guan@utoronto.ca",
+      "orcid": "https://orcid.org/0000-0002-1697-3080"
+    },
+    {
+      "@type": "Person",
+      "givenName": "Ian",
+      "familyName": "Niebres",
+      "email": "ian.niebres@mail.utoronto.ca",
+      "orcid": "https://orcid.org/0009-0004-5304-3650"
+    }
+  ],
+  "datePublished": "2025-09-15",
+  "dateModified": "2025-09-17",
+  "keywords": [
+    "astronomy",
+    "pulsars",
+    "flux estimation",
+    "signal processing",
+    "time-domain analysis"
+  ],
+  "relatedLink": [
+    "https://doi.org/10.48550/arXiv.2509.11960"
+  ],
+  "referencePublication": [
+    "https://doi.org/10.48550/arXiv.2509.11960"
+  ]
+}
+
