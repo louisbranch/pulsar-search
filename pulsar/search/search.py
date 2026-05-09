@@ -295,7 +295,7 @@ class Search:
         scenario (Scenario): The scenario to search for.
 
         Returns:
-        Tuple[np.ndarray, np.ndarray]: The right-hand side and divergence of the flux calculation.
+        Tuple[np.ndarray, np.ndarray]: The right-hand side and normal matrix of the flux calculation.
         """
 
         target = scenario.target

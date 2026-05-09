@@ -3,7 +3,7 @@
 
 ## Introduction
 
-`pulsar-search` is a Python package designed for simulating, filtering, and analysing pulsar signals in astronomical data. Its main usage is to estimate the flux amplitude of repeating signals in time-domain data by performing a targeted template search. Signal simulations can be used to estimate instrument sensitivity and signal-to-noise ratios if a real target is not available.
+`pulsar-search` is a Python package designed for simulating, filtering, and analysing pulsar signals in astronomical data. Its main usage is to estimate the flux amplitude of repeating signals in time-domain data by performing a targeted template search. Signal simulations can be injected into real or mock data to validate the pipeline and estimate instrument sensitivity.
 
 The package was originally designed to use time-ordered data from the Atacama Cosmology Telescope (ACT), but it is structured to accommodate additional telescopes by implementing the [`instrument`](./pulsar/instrument.py) protocol.
 
@@ -63,7 +63,7 @@ To adjust the instrument or logging level, use the optional `init` function:
 ```python
 import logging
 
-import pulsar-search as pulsar
+import pulsar
 from your_instrument_module import YourInstrumentClass
 
 pulsar.init(instrument=YourInstrumentClass(), log_level=logging.INFO)
@@ -78,11 +78,11 @@ Logging is set to `WARNING` by default.
 An instrument implements reading data as a generator, yielding one file at time. For example, to read and calibrate the first 10 files, selecting a subset of detectors:
 
 ```python
-for tod in tods(limit=10, dets=[0, 2, 4]):
+for tod in tods('input_path', limit=10, dets=[0, 2, 4]):
     tod.calibrate()
 ```
 
-For parallel processing, it is recommended first to get a list of suitable ids with `tod_ids()` and then passing the desired ones to `tods(ids=ids)` after splitting the list by process.
+For parallel processing, it is recommended first to get a list of suitable ids with `tod_ids('input_path')` and then passing the desired ones to `tods('input_path', ids=ids)` after splitting the list by process.
 
 ### Filters
 
@@ -102,23 +102,34 @@ highpass_filter_fft(tod, fknee=3, alpha=10)
 
 A target represents an astronomical source with position, size, and timing attributes. A target is required for both simulations and flux estimation.
 
-For example, to represent the Crab pulsar:
+For example, to represent the Crab pulsar (`Target` takes coordinates and radius in radians):
 
 ```python
-target = Target(name='crab', ra=83.63, dec=22.01, radius=0.1, T=0.0335, D=0.1)
+import numpy as np
+
+target = Target(
+    name='crab',
+    ra=np.deg2rad(83.63),
+    dec=np.deg2rad(22.01),
+    radius=np.deg2rad(0.1),
+    T=0.0335,
+    D=0.1,
+)
 ```
+
+When loading from a TOML file via `TargetContext`, the loader handles the degree → radian conversion for you.
 
 ### Simulation Profiles
 
 The library includes three profiles that can be injected into tod:
 
-* **Boxcar**: models a top-hat shape, it is constructed by splitting the signal into discreet phase bins, one of which is "on".
+* **Boxcar**: models a top-hat shape, constructed by splitting the signal into discrete phase bins, one of which is "on".
 * **von Mises**: a more realistic pulse shape using a gaussian-like circular profile. It uses the target's rotational period and duty cycle to build each pulse.
 * **Constant**: simulates a constant source, for example a background nebula, to analyse its effects near a pulsar.
 
 By default, the repeating signals are generated assuming a constant period and phase. However, the library also includes a `BarycentricTimingModel` that can offer higher precision by using a timing solution and solar system ephemeris. Additional models can be implemented through the `TimingModel` protocol.
 
-For example, to build a boxcar profile which 10 discreet bins which is active on the first bin:
+For example, to build a boxcar profile with 10 discrete bins, active on the first bin:
 
 ```python
 boxcar = Boxcar(num_bins=10, bin_index=0)
@@ -143,6 +154,7 @@ If `crab.toml` is defined as:
 name = "crab"
 ra = 83.63322         # Right Ascension in degrees
 dec = 22.01446        # Declination in degrees
+amp = 0               # Expected amplitude in mJy (0 if unknown)
 T = 0.0335            # Rotational period in seconds
 phi0 = 0.0            # Initial phase
 D = 0.1               # Duty cycle (fraction of period)
@@ -169,10 +181,10 @@ timing = ctx.timing_model
 
 ### Defining a Scenario
 
-A search scenario represents a set of target profiles and operations to be applied to list of TOD.
+A search scenario represents a set of target profiles and operations to be applied to a list of TOD.
 Each scenario is uniquely identified by a seed, which is generated based on the scenario parameters.
 
-Before the search is initiated, each scenario checks which ids are missing and skips the ones already processed. Therefore, one can peform incremental searches by increasing the `tod_limit` or by setting different `tod_ids` each time the search runs.
+Before the search is initiated, each scenario checks which ids are missing and skips the ones already processed. Therefore, one can perform incremental searches by increasing the `tod_limit` or by setting different `tod_ids` each time the search runs.
 
 #### Example: searching the Crab pulsar using a boxcar profile
         

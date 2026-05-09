@@ -7,11 +7,12 @@ from .pointing_models import PointingModel
 
 class Instrument(Protocol): # pragma: no cover
     """
-    Protocol to represent a generic astronomical instrument capable of generating 
-    Time-Ordered Data (TOD) objects from observations.
+    Protocol describing what the search needs from an astronomical instrument.
 
-    This protocol defines the standard interface for interacting with instruments
-    to retrieve observational data processed into TOD format.
+    Implementing this protocol — see `pulsar.mock_instrument` for the smallest
+    working example — is the entry point for adding a new telescope. The
+    package is intentionally agnostic about how data is read or how the sky is
+    projected onto detectors; everything goes through this interface.
     """
 
     def tods(self, path: str, limit: int = 0, dets: Optional[List[int]] = None,

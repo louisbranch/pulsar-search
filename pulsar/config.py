@@ -6,10 +6,13 @@ from . import log
 
 class Config:
     """
-    Configure the pulsar module with the instrument and log level.
-    The default instrument is ACT and the default log level is WARNING.
-    Call init() to update the global config instance.
-    Module calls such as `.tods()` will use the global config instance.
+    Holds the active instrument and log level for the package. A single global
+    instance lets module-level helpers (`tods()`, `create_map()`, …) dispatch
+    to the active instrument without threading it through every call.
+
+    On construction, falls back to ACT if no instrument is provided and the
+    optional ACT extra is installed; otherwise the instrument is None and most
+    helpers will fail until `init()` supplies one.
     """
     instrument: Instrument = None
 

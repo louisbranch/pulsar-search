@@ -71,7 +71,7 @@ class Scenario:
     Attributes:
     title (str): Title of the scenario.
     target (Target): The target of the scenario. This is the default target for all profiles and operations.
-    target_profiles (List[SignalProfile]): List of signal profiles to search for.
+    search_profiles (List[SignalProfile]): List of signal profiles to search for.
     operations (Optional[List[SignalOperation]]): List of signal operations to apply to the TOD, applied in order.
     calibration_options (Optional[dict]): Calibration options to apply to the TOD.
     filter (Optional[FilterOptions]): Filter to apply to the TOD.

@@ -11,14 +11,25 @@ from .tod import TOD
 @dataclass
 class FilterOptions:
     """
-    A class to store the options for the filter functions.
+    Bundles parameters for the supported high-pass filters so a single
+    `FilterOptions` instance can travel through Scenario → Storage and be
+    serialised alongside results for reproducibility.
+
+    Only the fields relevant to the chosen `method` are read; the rest are ignored.
 
     Attributes:
-    - method (str): The method to use for filtering the data. Options are 'butterworth', 'fft', and 'planet'.
-    - cutoff (float): The cutoff frequency for the Butterworth filter (in Hz).
-    - order (int): The order of the Butterworth filter.
-    - fknee (float): The knee frequency for the FFT/planet filter (in Hz).
-    - alpha (float): The slope of the FFT/planet filter.
+    - method (str): One of 'butterworth', 'fft', or 'planet'.
+        - 'butterworth': time-domain IIR high-pass; pick a sharp cutoff with
+          predictable phase behaviour.
+        - 'fft': frequency-domain attenuation with a tunable roll-off; cheaper
+          and more flexible than Butterworth for steep slopes.
+        - 'planet': removes a sky region (RA, Dec, radius) before applying an
+          FFT-style filter to the localised model; used to subtract bright
+          sources without filtering the whole TOD.
+    - cutoff (float): Cutoff frequency for the Butterworth filter, in Hz.
+    - order (int): Order of the Butterworth filter; higher = steeper roll-off.
+    - fknee (float): Knee frequency for the FFT/planet filter, in Hz.
+    - alpha (float): Slope of the FFT/planet filter; higher = steeper attenuation.
     """
     method: str = ''
     cutoff: float = 0.0
@@ -45,13 +56,15 @@ class FilterOptions:
 
 def filter(tod: TOD, opt: FilterOptions, sources: Optional[List[Source]] = None):
     """
-    Apply a filter to the data based on the provided options.
+    Dispatch to the high-pass filter selected by `opt.method`. Centralising the
+    dispatch lets Scenario carry a single FilterOptions instance regardless of
+    which method is chosen.
 
     Parameters:
     - tod (TOD): The time-ordered object containing the data and scan information.
-    - options (FilterOptions): The options for the filter.
-    - sources (List[Source]): A list of sources to filter out.
-
+    - opt (FilterOptions): The options for the filter (see FilterOptions).
+    - sources (List[Source]): Required only for the 'planet' method — the
+        sky regions whose contribution should be modelled and subtracted.
     """
     if opt.method == 'butterworth':
         highpass_filter_butterworth(tod, opt.cutoff, opt.order)
@@ -99,7 +112,6 @@ def highpass_filter_fft(tod: TOD, fknee: float, alpha: float):
     ftod /= filter_curve
     tod.data = fft.irfft(ftod, tod.data, n=samples, normalize=True)
 
-# TODO: allow for multiple sources to be filtered out at once
 def planet_filter(tod: TOD, ra: float, dec: float, R: float, fknee: float,
                   alpha: float):
     """

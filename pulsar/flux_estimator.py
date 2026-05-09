@@ -33,7 +33,13 @@ class FluxEstimator:
     def estimate(self, tod: TOD, profiles: List[SignalProfile],
                  ncomp: int = 3) -> Tuple[np.ndarray, np.ndarray]:
         """
-        Estimate the flux and its uncertainty from the TOD.
+        Compute the per-TOD sufficient statistics (rhs, div) for a linear flux
+        estimate. Returning the pieces — rather than a flux value — lets the
+        search sum rhs/div over many TODs and invert once, which is both cheaper
+        and statistically correct for the joint estimate.
+
+        All profiles share a single pointing matrix solve. Use
+        `estimate_individual` for phase-exclusive profiles whose pulses overlap.
 
         Parameters:
             tod (TOD): The time-ordered object containing the data and scan information.
@@ -43,8 +49,8 @@ class FluxEstimator:
 
         Returns:
             tuple: A tuple containing:
-                   - rhs (np.ndarray): The right-hand side of the flux estimate.
-                   - div (np.ndarray): The normal matrix of the flux estimate.
+                   - rhs (np.ndarray): The right-hand side T^t N^-1 d.
+                   - div (np.ndarray): The normal matrix T^t N^-1 T.
         """
 
         log.debug(f"Estimating Flux for TOD ID: {tod.id}")
@@ -95,7 +101,15 @@ class FluxEstimator:
 
     def estimate_individual(self, tod: TOD, profiles: List[SignalProfile],
                             ncomp: int = 3) -> Tuple[np.ndarray, np.ndarray]:
-        
+        """
+        Same statistics as `estimate`, but solves each profile in its own
+        pointing matrix. Required for phase-exclusive profiles (e.g. von Mises)
+        whose pulses extend beyond a single phase bin and would interfere if
+        solved jointly. See `SignalProfile.phase_exclusive`.
+
+        Parameters and return values match `estimate`.
+        """
+
         nprofiles = len(profiles)
 
         # Initialize arrays for the combined rhs and div results

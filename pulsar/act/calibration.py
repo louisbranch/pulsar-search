@@ -11,9 +11,10 @@ beam_calibrations = {
 
 def jansky_sr(freq: float = 98e9, cmb_T: float = 2.72548) -> float:
     """
-    Calculate the calibration in Jansky/steradian for a given frequency. 
-    This value is used to multiply by the TOD to convert it to a useful unit. 
-    The default frequency is set to 98 GHz.
+    Conversion factor from CMB temperature units (the native units of ACT TODs)
+    to flux density per solid angle (Jy/sr), so flux estimates land in units
+    comparable to source catalogs. Combined with `beam_sr`, the full TOD
+    calibration becomes Jy/beam (then scaled to mJy).
 
     Parameters:
     - freq (float): Frequency in Hz for which the calibration is calculated.
@@ -26,8 +27,11 @@ def jansky_sr(freq: float = 98e9, cmb_T: float = 2.72548) -> float:
 
 def beam_sr(array: str, band: str = 'f090') -> float:
     """
-    Calculate the beam calibration in steradians for a given array and band.
-    This function retrieves calibration values to be multiplied by TOD for beam correction.
+    Effective beam solid angle (in steradians) for an ACT array/band pair.
+    Multiplied with `jansky_sr`, this turns a TOD sample into Jy/beam: the
+    integral over the beam of the flux density distribution that produced it.
+
+    Values come from the DR6v4 beam calibration table at the top of this module.
 
     Parameters:
     - array (str): Identifier of the array, such as 'ar4', 'ar5', or 'ar6'.

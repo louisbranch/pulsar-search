@@ -130,7 +130,10 @@ class SignalProfile(ABC):
 
 class RemovalProfile(SignalProfile):
     """
-    Implementation of SignalProfile that models the removal of a target.
+    Sentinel profile used to mark a source for in-place removal from the TOD
+    (via `tod.remove_source` inside the search). The profile itself returns
+    zeros so it never contributes injected signal — only its target position
+    matters.
     """
     def __init__(self, target=None, timing: Optional[TimingModel] = None):
         super().__init__(target=target, timing=timing)

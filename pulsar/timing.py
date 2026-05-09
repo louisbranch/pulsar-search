@@ -31,9 +31,10 @@ class PeriodTimingModel(TimingModel):
     """
     A simple timing model assuming constant pulsar period and phase offset.
 
-    This model does not account for light travel time, relativistic corrections,
-    or barycentric time conversions. It is useful for synthetic or test profiles
-    where precise timing is not required.
+    Use this for synthetic profiles or short observations where a constant
+    period is good enough. For real pulsars over long stretches of TOD, prefer
+    `BarycentricTimingModel` — the constant-period assumption accumulates phase
+    error with time and will smear the search template.
     """
     def __init__(self, target):
         self.target = target
@@ -61,6 +62,10 @@ class BarycentricTimingModel(TimingModel):
     - TDT → TDB (adds relativistic correction from Earth's orbit)
     - Geometric delay from observer to solar system barycenter
     - Frequency evolution based on timing solution
+
+    Note: currently depends on `enlib` (coordinates, IERS data) and is
+    therefore effectively ACT-specific despite living in the generic package.
+    See the FIXME at the top of this module.
     """
     def __init__(self, target: Target, solution_file: str, site = coordinates.default_site,
                  ephem: Optional[str] = None, delay=0):
