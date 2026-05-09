@@ -7,6 +7,17 @@ from enact import actdata
 from .tod import TOD
 
 class PmatTotTransient:
+    """
+    Pointing matrix for transient (time-varying) sources such as pulsars.
+    Differs from a static point-source pmat in that the projected signal
+    depends on the source's light-curve profile evaluated at each sample's
+    timestamp — this is what `obstime2profile` provides.
+
+    The forward operation maps amplitude parameters into time-domain data; the
+    backward operation extracts amplitudes from data. Together they implement
+    the T and T^t in the linear flux estimate (see `FluxEstimator.estimate`).
+    """
+
     def __init__(self, tod: TOD, srcs: List[object], ndir: int = 1, perdet: bool = False, sys: str = "cel",
                  ncomp: int = 3, beam_size: Tuple[float, float] = (1, 1)):
         """

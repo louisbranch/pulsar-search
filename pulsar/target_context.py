@@ -55,4 +55,4 @@ class TargetContext:
         )
 
     def __str__(self):
-        return f"TargetContext(target={self.target.name}, timing_model={self.timing_model}, query_len={len(self.query)})"
+        return f"TargetContext(target={self.target.name}, timing_model={self.timing_model}, filter={self.filter.method or 'none'})"

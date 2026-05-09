@@ -23,6 +23,16 @@ STOP = None
 
 @dataclass
 class Targeting:
+    """
+    Pre-compute, for each TOD, which sample ranges fall within each target's
+    avoidance radius. The result is stored to a single HDF5 file keyed by
+    `tod_id` and target hash, so a later search (or analysis) can quickly
+    decide which TODs see a given target without re-running the full pointing
+    pipeline.
+
+    Runs in parallel via MPI; the supervisor distributes TODs to workers and
+    appends their results to the HDF5 file.
+    """
 
     targets: List[Target]
     tod_path: str
@@ -41,6 +51,10 @@ class Targeting:
             self.pointing_model = config.instrument.pointing_model()
 
     def run(self):
+        """
+        Run targeting in parallel via MPI. Rank 0 acts as supervisor; the
+        remaining ranks process one TOD at a time until exhausted.
+        """
         if MPI is None:
             log.critical('MPI is not installed. Please install mpi4py to use parallel processing.')
 
@@ -140,6 +154,11 @@ class Targeting:
             comm.send({'worker': rank, 'results': results}, dest=SUPERVISOR, tag=RESULT)
 
     def _search_targets(self, tod: TOD, targets: List[Target]):
+        """
+        For a single TOD, return the sample ranges that fall within each
+        target's avoidance radius. Calibration is run first so coordinates
+        align with the calibrated scan metadata.
+        """
         log.debug(f'Searching for targets in TOD {tod.id}...')
         tod.calibrate()
         results = []

@@ -6,6 +6,12 @@ from .tod import TOD
 from .signal_profile import SignalProfile
 
 class PointingModel(Protocol): # pragma: no cover
+    """
+    Maps between time-domain TOD samples and per-source amplitudes via
+    forward/backward operations. These are the T and T^t used in the linear
+    flux estimate (see `FluxEstimator.estimate`); concrete instruments
+    implement the actual sky-to-detector projection.
+    """
 
     def __init__(self, tod: TOD, sources: List[SignalProfile], ncomp: int=3): # pragma: no cover
         """

@@ -50,8 +50,10 @@ class TOD(Protocol): # pragma: no cover
     
     def calibrate(self, *args: Any, **kwargs: Any) -> None:  # pragma: no cover
         """
-        Calibrates the TOD in-place according to some specified calibration procedure.
-        Subclasses may define additional parameters.
+        Convert raw detector samples to physical flux units in-place. Flux
+        estimates are only meaningful once this has run, so the search calls
+        it before any filtering or injection. Idempotent: calling on an
+        already-calibrated TOD must be a no-op.
 
         Args:
             *args: Positional arguments for subclass implementations.
@@ -99,7 +101,9 @@ class TOD(Protocol): # pragma: no cover
 
     def locate_samples(self, ra: float, dec: float, R: float) -> np.ndarray: # pragma: no cover
         """
-        Find the minimum and maximum values for each detector in the given region.
+        Find the first and last sample indices for each detector that fall within
+        the given sky region. Returned indices bound the detector's time-domain
+        excursion through the region, useful for downstream slicing.
 
         Parameters:
         - ra (float): The right ascension of the source in radians.
@@ -107,7 +111,7 @@ class TOD(Protocol): # pragma: no cover
         - R (float): The radius of the source in radians.
 
         Returns:
-        - np.ndarray: An array containing the minimum and maximum values for each detector.
+        - np.ndarray: An (n_detectors, 2) array of [min_index, max_index] pairs.
         """
         pass
 
@@ -122,7 +126,9 @@ class TOD(Protocol): # pragma: no cover
 
     def fill_gaps(self, data: np.ndarray = None): # pragma: no cover
         """
-        Fills the gaps in the data using a specified gap-filling algorithm by the instrument.
+        Replace masked/cut samples with estimated values. FFT-based filtering
+        and flux estimation assume continuous data; uninterpolated gaps leak
+        into every frequency bin and bias the result.
 
         Parameters:
             data (np.ndarray): The data to fill the gaps in. If None, the original data is used.

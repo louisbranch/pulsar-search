@@ -20,7 +20,9 @@ class Config:
 @dataclass
 class MockInstrument:
     """
-    A mock instrument that implements the timedomain.Instrument interface.
+    A mock instrument that implements the pulsar.Instrument protocol.
+    Generates synthetic TODs with configurable noise and an atmospheric trend
+    so the search pipeline can run end-to-end without telescope data.
     """
     max_tods: int = 10
     dets_per_tod: int = 10
@@ -65,7 +67,7 @@ class MockInstrument:
 @dataclass
 class TOD:
     """
-    A mock Time-Ordered Data (TOD) object that implements the timedomain.TOD interface.
+    A mock Time-Ordered Data (TOD) object that implements the pulsar.TOD protocol.
     """
 
     id: str

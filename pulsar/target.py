@@ -14,6 +14,10 @@ import numpy as np
 class Source:
     """
     A generic astronomical source with positional and size attributes.
+
+    `Target` (the pulsar-specific subclass) inherits from this, so anywhere
+    the API asks for a `Source` (e.g. `Scenario.filter_sources`) you can also
+    pass a `Target`.
     """
     name: str = ''          # Name of the source.
     alias: str = ''         # Alias of the source.
@@ -66,7 +70,9 @@ class Source:
 @dataclass
 class Target(Source):
     """
-    A specific type of source representing a pulsar with additional properties.
+    A `Source` with the timing attributes needed to model a repeating signal
+    (rotational period, duty cycle, phase). Used as the search target in
+    `Scenario` and as the position/timing reference for signal profiles.
     """
     T: float = 0            # Rotational period in seconds.
     D: float = 0            # Duty cycle (pulse width divided by T).

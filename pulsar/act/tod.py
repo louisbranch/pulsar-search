@@ -176,7 +176,8 @@ class TOD:
 
     def locate_samples(self, ra: float, dec: float, R: float) -> np.ndarray:
         """
-        Find the minimum and maximum values for each detector in the given region.
+        Find the first and last sample indices for each detector that fall within
+        the given sky region.
 
         Parameters:
         - ra (float): The right ascension of the source in radians.
@@ -184,7 +185,7 @@ class TOD:
         - R (float): The radius of the source in radians.
 
         Returns:
-        - np.ndarray: An array containing the minimum and maximum values for each detector.
+        - np.ndarray: An (n_detectors, 2) array of [min_index, max_index] pairs.
         """
 
         min_max_pairs = []

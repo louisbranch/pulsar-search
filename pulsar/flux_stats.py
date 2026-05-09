@@ -13,6 +13,7 @@ from . import log
 
 @dataclass
 class FluxStat:
+    """Summary statistics over a TOD's flux samples (per detector)."""
     mean: np.array
     median: np.array
     std: np.array
@@ -21,6 +22,14 @@ class FluxStat:
 
 @dataclass
 class FluxStatResult:
+    """
+    Holds three views of a TOD's flux distribution so a target's expected
+    contribution can be compared against the surrounding background:
+
+    - overall: every sample.
+    - target: samples within the target's avoidance radius (only when a target is given).
+    - background: samples outside that radius.
+    """
     overall: FluxStat
     target: Optional[FluxStat] = None
     background: Optional[FluxStat] = None
@@ -45,12 +54,7 @@ class FluxStats:
 
         for tod in tods(tod_path, limit=tod_limit):
             tod.calibrate()
-            if sources:
-                # FIXME: This is a temporary solution to apply the filter to multiple sources
-                for source in sources:
-                    filter(tod, opt, source)
-            else:
-                filter(tod, opt)
+            filter(tod, opt, sources)
             stats = self._calculate_flux_statistics(tod, target)
             self._save_flux_statistics_to_hdf5(filename, tod.id, stats)
 
