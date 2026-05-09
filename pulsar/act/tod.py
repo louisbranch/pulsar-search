@@ -199,32 +199,32 @@ class TOD:
             min_max_pairs.append([lowest_min, highest_max])
         return np.array(min_max_pairs, dtype=int)
 
-    def recover_position(self, sample_idx: int) -> Tuple:
+    def recover_position(self, sample_idx: int, det_idx: int = 0) -> np.ndarray:
         """
-        Recovers the RA/Dec of a given sample for the first detector.
+        Recovers the RA/Dec of a given sample for a specific detector.
 
         Parameters:
             sample_idx (int): The index of the sample to recover the position for.
+            det_idx (int): The detector index. Defaults to 0 (the first detector).
 
         Returns:
-            Tuple: A tuple containing the recovered RA and Dec of the sample.
+            np.ndarray: An array [ra, dec] (in radians) of the recovered position.
         """
-        bore = self.scan.boresight
-        det_offs = self.scan.point_offset
-        site = self.scan.site
+        return self.recover_radec(
+            sample_idx, det_idx, self.scan.boresight, self.scan.point_offset, self.scan.site
+        )
 
-        return self.recover_radec(sample_idx, bore, det_offs, site)
-
+    @staticmethod
     def recover_radec(sample_idx, det_idx, bore, det_offs, site):
         """Recover the RA/Dec for a given sample index and detector index."""
         mjd = utils.ctime2mjd(bore[0, sample_idx])  # Get MJD at that sample time
 
         # Interpolate bore-sight pointing at this timestamp
         bore_radec = coordinates.interpol_pos("tele", "cel", bore[1:, sample_idx], mjd, site)
-        
+
         # Extract detector offset for the given detector index
         det_x, det_y = det_offs[det_idx]  # Extract (x, y) offset
-        
+
         # Apply correction for declination to avoid RA stretching
         cosel = np.cos(bore_radec[1])  # Cosine of declination
 

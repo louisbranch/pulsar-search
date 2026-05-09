@@ -143,7 +143,7 @@ class Search:
         if not self.save:
             log.info(f'Starting search with {len(self.scenarios)} scenarios without saving results to disk. Processing {len(ids)} TOD IDs')
             null_storage = Storage('/dev/null')
-            return ids, null_storage
+            return ids, list(self.scenarios), null_storage
 
         scenarios, missing_ids, completed = storage.missing_ids(ids, self.scenarios)
         if len(completed) > 0:

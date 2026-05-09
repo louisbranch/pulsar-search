@@ -33,3 +33,25 @@ class TestResult:
         assert metadata['noise'] == scenario.noise.as_dict()
         assert metadata['polarization_components'] == scenario.polarization_components.value
         assert metadata['custom'] == 'value'
+
+    def test_metadata_override_logs_warning(self, scenario, caplog):
+        import logging
+        scenario.metadata = {'title': 'shadow'}
+        result = Result(dt.now(), 'tod1', scenario, [], [])
+        with caplog.at_level(logging.WARNING, logger='pulsar.log.log'):
+            metadata = result.metadata
+        assert metadata['title'] == 'shadow'
+        assert any('Overwriting metadata key "title"' in r.message for r in caplog.records)
+
+    def test_metadata_with_optional_fields_none(self, scenario):
+        scenario.operations = None
+        scenario.filter = None
+        scenario.noise = None
+        scenario.config = None
+        scenario.metadata = None
+        result = Result(dt.now(), 'tod1', scenario, [], [])
+        metadata = result.metadata
+        assert metadata['operations'] is None
+        assert metadata['filter'] is None
+        assert metadata['noise'] is None
+        assert metadata['config'] is None

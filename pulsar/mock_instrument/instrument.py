@@ -4,7 +4,8 @@ from typing import List, Optional, Generator, Tuple
 import numpy as np
 from numpy.random import default_rng
 
-from pulsar import TOD, PointingModel
+from pulsar import TOD
+from pulsar.pointing_models import PointingModel
 
 @dataclass
 class Config:

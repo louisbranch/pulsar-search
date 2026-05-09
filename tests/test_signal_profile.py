@@ -137,3 +137,11 @@ def test_create_von_mises_profile(target):
     assert len(profiles) == 4
     assert all(isinstance(profile, VonMisesProfile) for profile in profiles)
     assert all(profile.target.phi0 == i * 0.25 for i, profile in enumerate(profiles))
+
+def test_create_von_mises_profile_target_phase_wraps(target):
+    # target_phase=0.5 shifts each profile by 0.5 mod 1.
+    profiles = create_von_mises_profiles(target=target, n=4, target_phase=0.5)
+    assert profiles[0].target.phi0 == pytest.approx(0.5)
+    assert profiles[1].target.phi0 == pytest.approx(0.75)
+    assert profiles[2].target.phi0 == pytest.approx(0.0)  # 0.5 + 0.5 = 1.0 % 1
+    assert profiles[3].target.phi0 == pytest.approx(0.25)
