@@ -1,6 +1,6 @@
 import logging
 from unittest.mock import patch
-import sys
+
 import pytest
 
 from pulsar.log.log import *
@@ -29,10 +29,11 @@ def test_log_error():
         mock_log.assert_called_once_with(logging.ERROR, "Error message")
 
 def test_log_critical():
-    with patch('logging.Logger.log') as mock_log, pytest.raises(SystemExit):
-        critical("Critical message")
+    with patch('logging.Logger.log') as mock_log:
+        with pytest.raises(SystemExit):
+            critical("Critical message")
+        # Assertions run after SystemExit is raised and caught.
         mock_log.assert_called_once_with(logging.CRITICAL, "Critical message")
-        assert sys.exit.called
 
 def test_log_info():
     with patch('logging.Logger.log') as mock_log:

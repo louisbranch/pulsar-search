@@ -290,6 +290,27 @@ class TestStorage:
 
         assert metadata == {'key1': 'value1', 'key2': (1, 2, 3), 'key3': None}
 
+    def test_update_then_read_round_trips_none_metadata(self, storage, scenario):
+        from datetime import datetime
+        from copy import deepcopy
+        scenario_no_filter = deepcopy(scenario)
+        scenario_no_filter.seed = 99
+        scenario_no_filter.filter = None
+        scenario_no_filter.noise = None
+
+        dt = datetime.strptime('2021-01-01T00:00:00', '%Y-%m-%dT%H:%M:%S')
+        results = [
+            Result(datetime=dt, tod_id='tod1', scenario=scenario_no_filter,
+                   rhs=[np.zeros((3,))], div=[np.zeros((3, 3))]),
+        ]
+        storage.update(results)
+
+        file_path = os.path.join(storage.output_path, results[0].filename)
+        _, metadata, _ = storage.read(file_path)
+        # 'None' string round-trips to actual None on read.
+        assert metadata['filter'] is None
+        assert metadata['noise'] is None
+
 def test_count_files_with_extension(storage):
     directory = storage.output_path
 

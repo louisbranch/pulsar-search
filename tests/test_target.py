@@ -1,6 +1,8 @@
-import pytest
+import astropy.units as u
 import numpy as np
-from pulsar import Target, Source
+import pytest
+
+from pulsar import Source, Target
 
 class TestSource:
     def test_init(self):
@@ -31,6 +33,16 @@ class TestSource:
   Amplitude: 1.0 mJy
   Radius: 0.1 radians""")
         assert str(source) == expected_str
+
+    def test_str_with_default_fields_filtered(self):
+        # Defaults (empty name/alias) should be filtered out by the
+        # `value not in (None, "")` check.
+        source = Source()
+        text = str(source)
+        assert 'Name' not in text
+        assert 'Alias' not in text
+        # Numeric defaults still appear.
+        assert 'Right Ascension (ra): 0 radians' in text
 
     def test_as_dict(self):
         target = Target(
@@ -128,7 +140,7 @@ class TestTarget:
 
     def test_offset_position(self):
         target = Target(ra=0.0, dec=0.0, T=1)
-        
+
         west = target.offset_position(1.0, direction='west')
         assert west.ra == pytest.approx(6.283, abs=1e-3)
         assert west.dec == pytest.approx(0.0, abs=1e-3)
@@ -148,6 +160,26 @@ class TestTarget:
         # wrong direction
         with pytest.raises(ValueError):
             target.offset_position(1.0, direction='wrong')
+
+    def test_offset_position_with_degree_unit(self):
+        target = Target(name='crab', amp=10.0, ra=0.0, dec=0.0, T=1.0)
+        offset = target.offset_position(1.0, direction='north', unit=u.deg)
+        # 1 degree north should leave RA at 0 and Dec at ~1 deg in radians.
+        assert offset.ra == pytest.approx(0.0, abs=1e-6)
+        assert offset.dec == pytest.approx(np.deg2rad(1.0), rel=1e-3)
+
+    def test_offset_position_preserves_attributes(self):
+        target = Target(name='crab', amp=10.0, ra=0.0, dec=0.0, T=1.0,
+                        D=0.5, phi0=0.3, phase_sign='+')
+        offset = target.offset_position(1.0, direction='east')
+        assert offset.name == 'crab'
+        assert offset.amp == 10.0
+        assert offset.T == 1.0
+        assert offset.D == 0.5
+        assert offset.phi0 == 0.3
+        assert offset.phase_sign == '+'
+        # Source itself isn't mutated.
+        assert target.ra == 0.0
 
     def test_to_degrees(self):
         target = Target(ra=np.pi/2, dec=np.pi/4, T=1.0)

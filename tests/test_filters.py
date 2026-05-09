@@ -56,6 +56,24 @@ def test_filter(target):
         options = FilterOptions(method='invalid', fknee=5, alpha=10)
         filter(tod, options, sources=[target])
 
+def test_filter_planet_with_multiple_sources(target):
+    # The planet branch loops over every source. Use a counting side_effect to
+    # confirm the loop runs once per source.
+    from pulsar import Source
+    signal = generate_sine_wave(30, 400)
+    tod = create_mock_tod()
+    tod.data = copy(signal)
+    tod.num_samples = len(signal)
+    tod.locate_source.side_effect = lambda ra, dec, R: (copy(signal), np.ones(len(signal)))
+
+    s1 = Source(name='s1', ra=0.1, dec=0.2, radius=0.05)
+    s2 = Source(name='s2', ra=0.3, dec=0.4, radius=0.05)
+
+    options = FilterOptions(method='planet', fknee=5, alpha=10)
+    filter(tod, options, sources=[s1, s2])
+
+    assert tod.locate_source.call_count == 2
+
 def test_highpass_filter_butterworth():
 
     fs = 400  # Sampling frequency (Hz)

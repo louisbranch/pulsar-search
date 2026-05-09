@@ -1,5 +1,14 @@
 import numpy as np
+import pytest
 from pulsar import MultiplicativeGaussianNoise
+from pulsar.noise import Noise
+
+
+def test_noise_is_abstract():
+    # Direct instantiation of the abstract base must raise.
+    with pytest.raises(TypeError):
+        Noise()
+
 
 class TestMultiplicateGaussianNoise:
 

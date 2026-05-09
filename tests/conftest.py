@@ -1,27 +1,15 @@
 import sys
 import pytest
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
-# Mock the dependencies
-mocks = {
-    'enact': MagicMock(),
-    'enact.actdata': MagicMock(),
-    'enact.actscan': MagicMock(),
-    'enact.cuts': MagicMock(),
-    'enact.filedb': MagicMock(),
-    'enact.nmat_measure': MagicMock(),
-    'enlib': MagicMock(),
-    'enlib.config': MagicMock(),
-    'enlib.dataset': MagicMock(),
-    'enlib.errors': MagicMock(),
-    'enlib.fft': MagicMock(),
-    'enlib.gapfill': MagicMock(),
-    'enlib.sampcut': MagicMock(),
-    'enlib.pmat': MagicMock(),
-    'enlib.utils': MagicMock(),
-    'mpi4py': MagicMock(),
-    'mpi4py.MPI': MagicMock(),
-}
+from ._act_stubs import build_mocks
+
+# Build once at conftest import so the same module objects are shared by
+# every patch.dict invocation. Tests can patch attributes on these stubs
+# (e.g. patch.object(filedb, 'data', {...})) and observe state across both
+# pytest_configure and the session fixture.
+mocks = build_mocks()
+
 
 @pytest.fixture(scope='session', autouse=True)
 def apply_mocks():
@@ -31,6 +19,7 @@ def apply_mocks():
     config.instrument = create_mock_instrument()
     with patch.dict('sys.modules', mocks):
         yield
+
 
 def pytest_configure(config):
     """Apply all the necessary mocks before any test modules are imported."""
