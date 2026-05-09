@@ -4,6 +4,7 @@ from unittest.mock import patch
 import numpy as np
 import pytest
 
+from pulsar import timing as timing_module
 from pulsar.target_context import TargetContext
 from pulsar.timing import BarycentricTimingModel, PeriodTimingModel
 
@@ -61,7 +62,7 @@ solution_file = "sol.txt"
 ephem = "https://example.com/de200.bsp"
 """)
 
-    with patch('pulsar.timing.urlretrieve') as mock_urlretrieve:
+    with patch.object(timing_module, 'urlretrieve') as mock_urlretrieve:
         ctx = TargetContext(path, root_dir=str(tmpdir) + '/')
 
     mock_urlretrieve.assert_called_once()

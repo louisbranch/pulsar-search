@@ -5,6 +5,7 @@ import numpy as np
 import pytest
 
 from pulsar import Target
+from pulsar import timing as timing_module
 from pulsar.timing import BarycentricTimingModel, PeriodTimingModel
 
 
@@ -58,7 +59,7 @@ class TestResolveEphem:
     `ephem` attribute."""
 
     def _build(self, target, solution_file, ephem):
-        with patch('pulsar.timing.urlretrieve') as mock:
+        with patch.object(timing_module, 'urlretrieve') as mock:
             m = BarycentricTimingModel(target=target, solution_file=solution_file, ephem=ephem)
         return m, mock
 
