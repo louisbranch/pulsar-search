@@ -52,6 +52,29 @@ def test_load_mpi_raises_helpful_error_without_mpi4py(monkeypatch):
         search_module._load_mpi()
 
 
+def test_run_falls_back_to_sequential_when_mpi4py_missing(search, monkeypatch, caplog):
+    """`Search.run()` with `parallel=True` and mpi4py unavailable must warn
+    and fall back to `run_sequential()` rather than raising."""
+    import logging
+    import sys
+
+    monkeypatch.setattr(search_module, 'MPI', None)
+    monkeypatch.setitem(sys.modules, 'mpi4py', None)
+
+    sequential_called = []
+    parallel_called = []
+    monkeypatch.setattr(search, 'run_sequential', lambda: sequential_called.append(True))
+    monkeypatch.setattr(search, 'run_parallel', lambda: parallel_called.append(True))
+
+    assert search.parallel is True  # default
+    with caplog.at_level(logging.WARNING, logger='pulsar'):
+        search.run()
+
+    assert sequential_called == [True]
+    assert parallel_called == []
+    assert any('Falling back to sequential' in r.message for r in caplog.records)
+
+
 @pytest.fixture
 def scenario(target):
     return Scenario(
