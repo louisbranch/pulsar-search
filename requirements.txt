@@ -1,3 +1,11 @@
+# Pinned environment used while preparing the companion paper. For a normal
+# install use `pip install .` (which reads pyproject.toml); only fall back to
+# this lockfile when reproducing the exact environment the paper was run in.
+#
+# Note: this file does not list every transitive dependency and may be
+# incomplete relative to pyproject.toml (e.g. scipy, h5py). Treat it as a
+# historical snapshot, not the source of truth.
+
 # Core dependencies
 astropy==5.1
 numpy==1.21.5

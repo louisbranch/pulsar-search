@@ -51,8 +51,10 @@ You can enable extra functionality by specifying one or more "extras" during ins
 
 For development or testing:
 ```bash
-pip install -r requirements-test.txt
+pip install -e .[test]
 ```
+
+Then run the suite with `make test` or `make coverage`.
 
 ## Configuration
 
