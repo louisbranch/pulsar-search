@@ -1,3 +1,5 @@
+import ast
+import inspect
 import logging
 import os
 from unittest.mock import MagicMock, patch
@@ -7,7 +9,28 @@ import pytest
 
 from pulsar import ConstantProfile
 from pulsar.search import Search, Scenario
+from pulsar.search import search as search_module
 from .fixtures import *
+
+
+def test_mpi4py_import_is_deferred():
+    """Regression: `pulsar.search.search` must not pull in `mpi4py` at
+    module-load time. The import is deferred to `_load_mpi()` so the module
+    (and `Search` sequential mode) can be used without the `[parallel]` extra.
+    """
+    tree = ast.parse(inspect.getsource(search_module))
+    for node in tree.body:
+        if isinstance(node, ast.ImportFrom):
+            assert node.module is None or not node.module.startswith('mpi4py'), (
+                f"mpi4py must not be imported at module scope; found "
+                f"`from {node.module} import ...` at line {node.lineno}"
+            )
+        elif isinstance(node, ast.Import):
+            for alias in node.names:
+                assert not alias.name.startswith('mpi4py'), (
+                    f"mpi4py must not be imported at module scope; found "
+                    f"`import {alias.name}` at line {node.lineno}"
+                )
 
 
 @pytest.fixture

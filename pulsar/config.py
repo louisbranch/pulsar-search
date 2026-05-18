@@ -24,21 +24,32 @@ class Config:
             try:
                 from .act import ACT
                 self.instrument = ACT()
-            except ImportError as e:
-                log.error(f'Failed to import ACT instrument: {e}')
-                log.warning("No instrument provided. Most functions will not work.")
+            except ImportError:
+                # ACT auto-fallback is unavailable — silent because the user
+                # typically supplies an instrument via `pulsar.init(...)`.
+                # `init()` itself surfaces a warning if no instrument is set.
+                pass
 
 # Global config instance
 config = Config()
 
 def init(instrument: Optional[Instrument] = None, log_level = WARNING):
     """
-    Override the global config instance with the given instrument and log level.
-    """
-    global config
+    Set the active instrument and log level on the global config.
 
-    # Update the global config instance
-    config = Config(instrument, log_level)
+    Mutates the existing `config` object in place rather than rebinding it so
+    that modules which captured the reference via `from .config import config`
+    (e.g. `pulsar.io`, `pulsar.map`) see the update.
+    """
+    log.init(log_level)
+    config.instrument = instrument
+    if instrument is None:
+        try:
+            from .act import ACT
+            config.instrument = ACT()
+        except ImportError as e:
+            log.error(f'Failed to import ACT instrument: {e}')
+            log.warning("No instrument provided. Most functions will not work.")
 
 def instrument() -> Instrument:
     """

@@ -1,3 +1,5 @@
+import ast
+import inspect
 import os
 from unittest.mock import MagicMock
 
@@ -6,6 +8,7 @@ import numpy as np
 import pytest
 
 from pulsar import Target
+from pulsar.targeting import targeting as targeting_module
 from pulsar.targeting.targeting import (
     Targeting,
     append_to_hdf5_file,
@@ -13,6 +16,25 @@ from pulsar.targeting.targeting import (
     target_hash,
 )
 from ..test_mocks import create_mock_tod
+
+
+def test_mpi4py_import_is_deferred():
+    """Regression: `pulsar.targeting.targeting` must not pull in `mpi4py` at
+    module-load time; `_load_mpi()` handles it on demand inside `run()`.
+    """
+    tree = ast.parse(inspect.getsource(targeting_module))
+    for node in tree.body:
+        if isinstance(node, ast.ImportFrom):
+            assert node.module is None or not node.module.startswith('mpi4py'), (
+                f"mpi4py must not be imported at module scope; found "
+                f"`from {node.module} import ...` at line {node.lineno}"
+            )
+        elif isinstance(node, ast.Import):
+            for alias in node.names:
+                assert not alias.name.startswith('mpi4py'), (
+                    f"mpi4py must not be imported at module scope; found "
+                    f"`import {alias.name}` at line {node.lineno}"
+                )
 
 
 @pytest.fixture
