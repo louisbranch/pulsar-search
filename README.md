@@ -1,5 +1,13 @@
 # Pulsar Signal Search Library
 ![Coverage](../../raw/badges/tests/coverage.svg)
+<!-- Add Zenodo DOI badge below this line once v1.0.0 is archived (see Citation section):
+[![DOI](https://zenodo.org/badge/DOI/<ZENODO_DOI>.svg)](https://doi.org/<ZENODO_DOI>)
+-->
+
+> **Citation:** If you use `pulsar-search` in your work, please cite both the
+> software and the companion paper (arXiv:[2509.11960](https://doi.org/10.48550/arXiv.2509.11960),
+> accepted by *The Astrophysical Journal*). See [`CITATION.cff`](./CITATION.cff)
+> for machine-readable metadata.
 
 ## Introduction
 
@@ -10,6 +18,23 @@ The package was originally designed to use time-ordered data from the Atacama Co
 An instrument should be able to provide time-ordered data as numpy arrays, map sky coordinates into time domain, and inject/retrieve signal amplitude. See the [`MockInstrument`](./pulsar/mock_instrument/instrument.py) for an example on how a new data source can be implemented.
 
 ## 🔧 Installation
+
+### Prerequisites
+
+`pulsar-search` depends on [`pixell`](https://github.com/simonsobs/pixell),
+which ships a Fortran extension built from source on PyPI (no Linux wheels
+are published as of pixell 0.31.x). A clean install therefore needs a Fortran
+compiler and a few build tools:
+
+- **Linux**: `gfortran` (e.g. `apt install gfortran` on Debian/Ubuntu,
+  `dnf install gcc-gfortran` on Fedora, `pacman -S gcc-fortran` on Arch).
+- **macOS**: `brew install gcc` (provides `gfortran`).
+- **conda users**: `conda install -c conda-forge pixell` before installing
+  this package avoids the source build entirely.
+
+Python ≥ 3.10 is required.
+
+### Steps
 
 This package isn't on PyPI. To install it:
 

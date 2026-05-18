@@ -1,3 +1,5 @@
+__version__ = "1.0.0"
+
 from .config import init, instrument
 from .io import tods, tod_ids
 from .instrument import Instrument

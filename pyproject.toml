@@ -60,6 +60,8 @@ test = [
 Homepage = "https://github.com/louisbranch/pulsar-search"
 Issues = "https://github.com/louisbranch/pulsar-search/issues"
 Paper = "https://doi.org/10.48550/arXiv.2509.11960"
+# Add once v1.0.0 is archived on Zenodo:
+# Archive = "https://doi.org/<ZENODO_DOI>"
 
 [tool.setuptools.packages.find]
 include = ["pulsar*"]
