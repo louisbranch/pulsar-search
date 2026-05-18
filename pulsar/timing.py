@@ -7,7 +7,6 @@ import numpy as np
 from astropy.time import Time
 from astropy.coordinates import get_body_barycentric, solar_system_ephemeris
 from pixell import utils
-from enlib import coordinates, iers # FIXME: move enlib dependency to a separate module for ACT-specific code
 
 from .target import Target
 
@@ -63,14 +62,17 @@ class BarycentricTimingModel(TimingModel):
     - Geometric delay from observer to solar system barycenter
     - Frequency evolution based on timing solution
 
-    Note: currently depends on `enlib` (coordinates, IERS data) and is
-    therefore effectively ACT-specific despite living in the generic package.
-    See the FIXME at the top of this module.
+    Depends on `enlib` (coordinates, IERS data) which is only installable via
+    the `[act]` extra. The import is deferred to instantiation so that
+    `import pulsar.timing` and `PeriodTimingModel` remain usable without enlib.
     """
-    def __init__(self, target: Target, solution_file: str, site = coordinates.default_site,
+    def __init__(self, target: Target, solution_file: str, site=None,
                  ephem: Optional[str] = None, delay=0):
+        from enlib import coordinates, iers  # deferred: only required when this model is actually used
+        self._coordinates = coordinates
+        self._iers = iers
         self.target = target
-        self.site = site
+        self.site = site if site is not None else coordinates.default_site
         self.ephem = self._resolve_ephem(ephem)
         self.delay = delay
         self._load_timing_data(solution_file)
@@ -156,7 +158,7 @@ class BarycentricTimingModel(TimingModel):
 
         ra_dec = np.array([target.ra, target.dec])
         vec_obsdir = utils.ang2rect(ra_dec)
-        obs_ra, obs_dec = coordinates.transform("hor", "cel", [0, np.pi/2], time=utils.ctime2mjd(ctime), site=site)
+        obs_ra, obs_dec = self._coordinates.transform("hor", "cel", [0, np.pi/2], time=utils.ctime2mjd(ctime), site=site)
         vec_earth_obs = utils.ang2rect([obs_ra, obs_dec]) * utils.R_earth
         vec_bary_earth = get_body_barycentric("earth", Time(ctime, format="unix")).xyz.to("m").value
         vec_bary_obs = vec_bary_earth + vec_earth_obs
@@ -171,6 +173,7 @@ class BarycentricTimingModel(TimingModel):
     def _calc_leaps(self, ctime):
         """Compute number of leap seconds at given time using IERS data."""
         if not hasattr(self, '_utctai'):
+            iers = self._iers
             iers_mjds = np.array([iers.get(i).mjd for i in range(iers.cvar.iers_n)])
             dUTs = np.array([iers.get(i).dUT for i in range(iers.cvar.iers_n)])
             leap_inds = np.where(utils.nint(dUTs[1:] - dUTs[:-1]) != 0)[0] + 1

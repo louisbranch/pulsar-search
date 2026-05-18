@@ -1,3 +1,5 @@
+import ast
+import inspect
 import os
 from unittest.mock import patch
 
@@ -7,6 +9,27 @@ import pytest
 from pulsar import Target
 from pulsar import timing as timing_module
 from pulsar.timing import BarycentricTimingModel, PeriodTimingModel
+
+
+def test_enlib_import_is_deferred():
+    """Regression: `pulsar.timing` must not pull in `enlib` at module-load
+    time. Only `BarycentricTimingModel.__init__` should trigger it, so users
+    without the `[act]` install extra can still `import pulsar.timing` and use
+    `PeriodTimingModel`.
+    """
+    tree = ast.parse(inspect.getsource(timing_module))
+    for node in tree.body:
+        if isinstance(node, ast.ImportFrom):
+            assert node.module is None or not node.module.startswith('enlib'), (
+                f"enlib must not be imported at module scope; found "
+                f"`from {node.module} import ...` at line {node.lineno}"
+            )
+        elif isinstance(node, ast.Import):
+            for alias in node.names:
+                assert not alias.name.startswith('enlib'), (
+                    f"enlib must not be imported at module scope; found "
+                    f"`import {alias.name}` at line {node.lineno}"
+                )
 
 
 @pytest.fixture
