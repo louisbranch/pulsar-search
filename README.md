@@ -1,5 +1,13 @@
 # Pulsar Signal Search Library
 ![Coverage](../../raw/badges/tests/coverage.svg)
+<!-- Add Zenodo DOI badge below this line once v1.0.0 is archived (see Citation section):
+[![DOI](https://zenodo.org/badge/DOI/<ZENODO_DOI>.svg)](https://doi.org/<ZENODO_DOI>)
+-->
+
+> **Citation:** If you use `pulsar-search` in your work, please cite both the
+> software and the companion paper (arXiv:[2509.11960](https://doi.org/10.48550/arXiv.2509.11960),
+> accepted by *The Astrophysical Journal*). See [`CITATION.cff`](./CITATION.cff)
+> for machine-readable metadata.
 
 ## Introduction
 
