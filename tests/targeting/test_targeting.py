@@ -37,6 +37,24 @@ def test_mpi4py_import_is_deferred():
                 )
 
 
+def test_load_mpi_short_circuits_when_already_loaded(monkeypatch):
+    """Second call to _load_mpi() must not re-import."""
+    sentinel = object()
+    monkeypatch.setattr(targeting_module, 'MPI', sentinel)
+    targeting_module._load_mpi()
+    assert targeting_module.MPI is sentinel
+
+
+def test_load_mpi_raises_helpful_error_without_mpi4py(monkeypatch):
+    """_load_mpi() must raise ImportError with an actionable message when
+    mpi4py isn't installed."""
+    import sys
+    monkeypatch.setattr(targeting_module, 'MPI', None)
+    monkeypatch.setitem(sys.modules, 'mpi4py', None)
+    with pytest.raises(ImportError, match=r'\[parallel\] extra'):
+        targeting_module._load_mpi()
+
+
 @pytest.fixture
 def target_a():
     return Target(name='A', ra=0.5, dec=0.3, radius=0.1, T=1.0)
