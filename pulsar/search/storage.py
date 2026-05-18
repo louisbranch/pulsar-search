@@ -150,10 +150,15 @@ class Storage:
                 tod_group.create_dataset('rhs', data=rhs)
                 tod_group.create_dataset('div', data=div)
 
-    def read(self, file_path: str):
+    @staticmethod
+    def read(file_path: str):
         """
         Read the search results from an HDF5 file and return the data, metadata and references.
         References contain the TOD ID, search profile index, and the shape of the right-hand side and normal matrix arrays.
+
+        Static because the operation only needs the file path, not a configured
+        Storage instance — lets callers do `Storage.read(path)` directly without
+        constructing an output-path Storage they don't need.
         """
         references = []
         data = []

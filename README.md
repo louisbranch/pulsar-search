@@ -120,9 +120,13 @@ Logging is set to `WARNING` by default.
 
 ### Reading Time-ordered data (TOD)
 
-An instrument implements reading data as a generator, yielding one file at time. For example, to read and calibrate the first 10 files, selecting a subset of detectors:
+An instrument implements reading data as a generator, yielding one file at time. The snippets in this section assume an instrument has been wired in first via `pulsar.init(instrument=YourInstrumentClass())` (see [Configuration](#configuration) above).
+
+For example, to read and calibrate the first 10 files, selecting a subset of detectors:
 
 ```python
+from pulsar import tods
+
 for tod in tods('input_path', limit=10, dets=[0, 2, 4]):
     tod.calibrate()
 ```
@@ -177,7 +181,9 @@ By default, the repeating signals are generated assuming a constant period and p
 For example, to build a boxcar profile with 10 discrete bins, active on the first bin:
 
 ```python
-boxcar = Boxcar(num_bins=10, bin_index=0)
+from pulsar import BoxcarProfile
+
+boxcar = BoxcarProfile(num_bins=10, bin_index=0)
 ```
 
 The library also has two helpers that allow the creation of multiples profiles at once. See `create_boxcar_profiles` and `create_von_mises_profiles`.
@@ -186,7 +192,7 @@ Custom profiles can be implemented via the `SignalProfile` abstract class.
 
 ## Searching
 
-A search encapsulates the process of going through multiple TOD files calibrating, filtering, optionally injecting simulations, and finally estimating the flux amplitude of a target. A search can run in parallel by using `mpi4py`. It also supports different scenarios at once, each resulting in a separated search result file (`.hdf5`) containing the right-hand side and normal matrix values for flux estimation.
+A search encapsulates the process of going through multiple TOD files calibrating, filtering, optionally injecting simulations, and finally estimating the flux amplitude of a target. By default `Search` runs in parallel via `mpi4py`; if `mpi4py` isn't installed it logs a warning and falls back to sequential execution (pass `parallel=False` to opt into sequential explicitly and silence the warning). It also supports different scenarios at once, each resulting in a separated search result file (`.hdf5`) containing the right-hand side and normal matrix values for flux estimation.
 
 ### Target Context
 
@@ -313,7 +319,7 @@ search = Search(
 search.run()
 ```
 
-If MPI is available, the search will run in parallel, otherwise it is performed sequentially.
+If `mpi4py` is unavailable, `search.run()` logs a warning and runs the search sequentially. Pass `parallel=False` to `Search(...)` to silence the warning when you intend to run sequentially.
 
 ### Reading the Results
 
@@ -332,7 +338,7 @@ References contain the TOD id, search profile index, and the shape of the right-
 Finally, with the data results for a scenario we can estimate the flux:
 
 ```python
-estimator = pulsar.FluxEstimator(pmat=config.instrument.pointing_model)
+estimator = pulsar.FluxEstimator(pmat=config.instrument.pointing_model())
 
 raw_fluxes, fluxes, mean_flux, err, snr = estimator.calculate_flux(data, nsplits=20, subtract_median_flux=True)
 ```

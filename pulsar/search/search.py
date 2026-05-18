@@ -107,8 +107,21 @@ class Search:
     def run(self):
         """
         Run the search on the TOD files with the given scenarios.
+
+        If `parallel=True` but mpi4py isn't installed, log a warning and fall
+        back to sequential. The check happens up front via `_load_mpi()` so
+        the fallback only fires from a missing import — any other failure
+        inside `run_parallel` (after MPI is loaded) still propagates.
         """
         if self.parallel:
+            try:
+                _load_mpi()
+            except ImportError as e:
+                log.warning(
+                    f'{e} Falling back to sequential search; pass parallel=False to silence this warning.'
+                )
+                self.run_sequential()
+                return
             self.run_parallel()
         else:
             self.run_sequential()
