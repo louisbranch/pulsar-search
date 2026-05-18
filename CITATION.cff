@@ -1,0 +1,53 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite both the software (this record) and the companion paper (preferred-citation, below)."
+title: pulsar-search
+abstract: >-
+  Python package for simulating, filtering, and analysing pulsar signals in
+  time-domain telescope data. Provides targeted template searches for flux
+  estimation, with simulation and filtering tools.
+type: software
+license: BSD-3-Clause
+repository-code: "https://github.com/louisbranch/pulsar-search"
+version: "1.0.0"
+keywords:
+  - astronomy
+  - pulsars
+  - flux estimation
+  - signal processing
+  - time-domain analysis
+authors:
+  - given-names: Louis
+    family-names: Branch
+    email: branch3e8@gmail.com
+    orcid: "https://orcid.org/0009-0009-2369-327X"
+  - given-names: Yilun
+    family-names: Guan
+    email: yilun.guan@utoronto.ca
+    orcid: "https://orcid.org/0000-0002-1697-3080"
+  - given-names: Ian
+    family-names: Niebres
+    email: ian.niebres@mail.utoronto.ca
+    orcid: "https://orcid.org/0009-0004-5304-3650"
+identifiers:
+  # Zenodo DOI will be added here once the v1.0.0 GitHub release is archived.
+  - type: other
+    value: "arXiv:2509.11960"
+    description: arXiv identifier for the companion paper
+preferred-citation:
+  type: article
+  # ApJ DOI and final bibliographic details to be filled in once the paper is published;
+  # the arXiv DOI below is the interim canonical reference.
+  title: "[Companion paper — title to be filled in at ApJ publication]"
+  doi: "10.48550/arXiv.2509.11960"
+  journal: "The Astrophysical Journal"
+  year: 2026
+  authors:
+    - given-names: Louis
+      family-names: Branch
+      orcid: "https://orcid.org/0009-0009-2369-327X"
+    - given-names: Yilun
+      family-names: Guan
+      orcid: "https://orcid.org/0000-0002-1697-3080"
+    - given-names: Ian
+      family-names: Niebres
+      orcid: "https://orcid.org/0009-0004-5304-3650"
