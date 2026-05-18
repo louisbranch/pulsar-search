@@ -56,6 +56,24 @@ pip install -e .[test]
 
 Then run the suite with `make test` or `make coverage`.
 
+See [`CONTRIBUTING.md`](./CONTRIBUTING.md) for the full development workflow,
+extension points (`Instrument`, `TimingModel`, `SignalProfile`), and how to
+file issues.
+
+### Try it without telescope data
+
+The `examples/crab_search_mock.py` script exercises the basic pipeline
+(instrument wiring, TOD generation, filtering, profile construction) against
+the bundled `MockInstrument`, so you can confirm a fresh install works
+end-to-end without needing real data:
+
+```bash
+python examples/crab_search_mock.py
+```
+
+Full flux estimation requires a real `PointingModel`; see the ACT
+implementation under `pulsar/act/` for a worked example.
+
 ## Configuration
 
 The `pulsar-search` package allows customization of the instrument used and the verbosity of the logging system.

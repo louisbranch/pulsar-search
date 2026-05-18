@@ -6,7 +6,6 @@ import h5py
 import os
 
 import numpy as np
-from mpi4py import MPI
 
 from ..config import config
 from ..instrument import Instrument
@@ -20,6 +19,24 @@ SUPERVISOR = 0
 WAITING = 1
 RESULT = 2
 STOP = None
+
+# Lazy mpi4py import: see pulsar.search.search._load_mpi for rationale.
+MPI = None
+
+
+def _load_mpi():
+    """Lazy-import mpi4py.MPI so `pulsar.targeting` is importable without it."""
+    global MPI
+    if MPI is not None:
+        return
+    try:
+        from mpi4py import MPI as _MPI
+    except ImportError as e:
+        raise ImportError(
+            "mpi4py is required for parallel targeting. Install the [parallel] "
+            "extra: `pip install pulsar-search[parallel]`."
+        ) from e
+    MPI = _MPI
 
 @dataclass
 class Targeting:
@@ -55,8 +72,7 @@ class Targeting:
         Run targeting in parallel via MPI. Rank 0 acts as supervisor; the
         remaining ranks process one TOD at a time until exhausted.
         """
-        if MPI is None:
-            log.critical('MPI is not installed. Please install mpi4py to use parallel processing.')
+        _load_mpi()
 
         comm = MPI.COMM_WORLD
         rank = comm.Get_rank()

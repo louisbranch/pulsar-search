@@ -59,3 +59,11 @@ def test_init():
     pulsar.init(instrument, log_level=logging.INFO)
     assert pulsar.config.config.instrument == instrument
     assert log().level == logging.INFO
+
+
+def test_instrument_accessor_returns_active_instrument():
+    """`pulsar.instrument()` is the public accessor for the current instrument
+    on the global config — verify it tracks `pulsar.init()`."""
+    mock = create_mock_instrument()
+    pulsar.init(mock)
+    assert pulsar.instrument() is mock

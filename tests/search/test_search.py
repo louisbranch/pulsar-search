@@ -1,3 +1,5 @@
+import ast
+import inspect
 import logging
 import os
 from unittest.mock import MagicMock, patch
@@ -7,7 +9,47 @@ import pytest
 
 from pulsar import ConstantProfile
 from pulsar.search import Search, Scenario
+from pulsar.search import search as search_module
 from .fixtures import *
+
+
+def test_mpi4py_import_is_deferred():
+    """Regression: `pulsar.search.search` must not pull in `mpi4py` at
+    module-load time. The import is deferred to `_load_mpi()` so the module
+    (and `Search` sequential mode) can be used without the `[parallel]` extra.
+    """
+    tree = ast.parse(inspect.getsource(search_module))
+    for node in tree.body:
+        if isinstance(node, ast.ImportFrom):
+            assert node.module is None or not node.module.startswith('mpi4py'), (
+                f"mpi4py must not be imported at module scope; found "
+                f"`from {node.module} import ...` at line {node.lineno}"
+            )
+        elif isinstance(node, ast.Import):
+            for alias in node.names:
+                assert not alias.name.startswith('mpi4py'), (
+                    f"mpi4py must not be imported at module scope; found "
+                    f"`import {alias.name}` at line {node.lineno}"
+                )
+
+
+def test_load_mpi_short_circuits_when_already_loaded(monkeypatch):
+    """Second call to _load_mpi() must not re-import."""
+    sentinel = object()
+    monkeypatch.setattr(search_module, 'MPI', sentinel)
+    search_module._load_mpi()
+    assert search_module.MPI is sentinel
+
+
+def test_load_mpi_raises_helpful_error_without_mpi4py(monkeypatch):
+    """_load_mpi() must raise ImportError with an actionable message when
+    mpi4py isn't installed."""
+    import sys
+    monkeypatch.setattr(search_module, 'MPI', None)
+    # Setting sys.modules['mpi4py'] = None makes `import mpi4py` raise ImportError.
+    monkeypatch.setitem(sys.modules, 'mpi4py', None)
+    with pytest.raises(ImportError, match=r'\[parallel\] extra'):
+        search_module._load_mpi()
 
 
 @pytest.fixture

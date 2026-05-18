@@ -6,7 +6,6 @@ from typing import List, Optional, Tuple
 import os
 
 import numpy as np
-from mpi4py import MPI
 
 from ..config import config
 from ..filters import filter
@@ -25,6 +24,34 @@ SUPERVISOR = 0
 WAITING = 1
 RESULT = 2
 STOP = None
+
+# Populated lazily by `_load_mpi()` so `pulsar.search` can be imported without
+# mpi4py installed (e.g. for sequential search or just to read existing
+# results). `_supervisor` / `_worker` reference this module-level name after
+# `run_parallel` has loaded it.
+MPI = None
+
+
+def _load_mpi():
+    """Lazy-import mpi4py.MPI.
+
+    mpi4py has an OS-level MPI runtime dependency that makes it awkward to
+    require globally. Deferring the import lets users install the package and
+    run sequential searches or read results without installing MPI; only
+    `run_parallel` actually needs it.
+    """
+    global MPI
+    if MPI is not None:
+        return
+    try:
+        from mpi4py import MPI as _MPI
+    except ImportError as e:
+        raise ImportError(
+            "mpi4py is required for parallel search. Install the [parallel] "
+            "extra: `pip install pulsar-search[parallel]` (and ensure an MPI "
+            "runtime such as OpenMPI is available)."
+        ) from e
+    MPI = _MPI
 
 @dataclass
 class Search:
@@ -92,8 +119,7 @@ class Search:
         the work to the remaining processes. Each worker processes a single TOD and sends the results
         back to the supervisor to be saved to disk.
         """
-        if MPI is None:
-            log.critical('MPI is not installed. Please install mpi4py to use parallel processing.')
+        _load_mpi()
 
         comm = MPI.COMM_WORLD
         rank = comm.Get_rank()
