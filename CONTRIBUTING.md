@@ -6,7 +6,12 @@ package against new data sources.
 
 ## Development setup
 
-Clone the repo and install the package in editable mode with the `test` extra:
+You need a Fortran compiler before `pip install` — `pixell` builds from source.
+See the README "Prerequisites" section for OS-specific commands (`gfortran` on
+Linux, Homebrew `gcc` on macOS, or conda-forge `pixell` to skip the build).
+
+Then clone the repo and install the package in editable mode with the `test`
+extra:
 
 ```bash
 git clone https://github.com/louisbranch/pulsar-search.git

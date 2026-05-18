@@ -19,6 +19,23 @@ An instrument should be able to provide time-ordered data as numpy arrays, map s
 
 ## 🔧 Installation
 
+### Prerequisites
+
+`pulsar-search` depends on [`pixell`](https://github.com/simonsobs/pixell),
+which ships a Fortran extension built from source on PyPI (no Linux wheels
+are published as of pixell 0.31.x). A clean install therefore needs a Fortran
+compiler and a few build tools:
+
+- **Linux**: `gfortran` (e.g. `apt install gfortran` on Debian/Ubuntu,
+  `dnf install gcc-gfortran` on Fedora, `pacman -S gcc-fortran` on Arch).
+- **macOS**: `brew install gcc` (provides `gfortran`).
+- **conda users**: `conda install -c conda-forge pixell` before installing
+  this package avoids the source build entirely.
+
+Python ≥ 3.10 is required.
+
+### Steps
+
 This package isn't on PyPI. To install it:
 
 1. Clone the repository:
