@@ -10,7 +10,7 @@ readme = "README.md"
 requires-python = ">=3.10"
 license = { text = "BSD-3-Clause" }
 authors = [
-    { name = "Louis Branch", email = "louis.branch@mail.utoronto.ca" },
+    { name = "Louis Branch", email = "branch3e8@gmail.com" },
     { name = "Yilun Guan", email = "yilun.guan@utoronto.ca" },
     { name = "Ian Niebres", email = "ian.niebres@mail.utoronto.ca" },
 ]
