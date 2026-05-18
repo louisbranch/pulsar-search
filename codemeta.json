@@ -3,7 +3,7 @@
   "@type": "SoftwareSourceCode",
   "name": "pulsar-search",
   "description": "Python package for simulating, filtering, and analysing pulsar signals in time-domain telescope data. Provides targeted template searches for flux estimation, with simulation and filtering tools.",
-  "identifier": "",
+  "identifier": "https://doi.org/10.5281/zenodo.20273567",
   "codeRepository": "https://github.com/louisbranch/pulsar-search",
   "license": "https://spdx.org/licenses/BSD-3-Clause.html",
   "programmingLanguage": "Python",
@@ -31,7 +31,7 @@
       "orcid": "https://orcid.org/0009-0004-5304-3650"
     }
   ],
-  "datePublished": "2025-09-15",
+  "datePublished": "2026-05-18",
   "dateModified": "2026-05-18",
   "keywords": [
     "astronomy",

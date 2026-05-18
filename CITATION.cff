@@ -29,7 +29,9 @@ authors:
     email: ian.niebres@mail.utoronto.ca
     orcid: "https://orcid.org/0009-0004-5304-3650"
 identifiers:
-  # Zenodo DOI will be added here once the v1.0.0 GitHub release is archived.
+  - type: doi
+    value: "10.5281/zenodo.20273567"
+    description: Zenodo archive of the v1.0.0 software release
   - type: other
     value: "arXiv:2509.11960"
     description: arXiv identifier for the companion paper
